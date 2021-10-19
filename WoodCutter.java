@@ -19,6 +19,8 @@ public class WoodCutter extends TaskScript {
     public static Area chopArea = new Area(3203, 3256, 3180, 3236);
     public static Area bankArea = new Area(3212, 3229, 3205, 3217, 2);
     public static Area stairsArea = new Area(3206, 3229, 3205, 3228);
+    public static Area grandExchange = new Area(3168, 3493, 3161, 3486);
+
 
     @Override
     public void onStart(){

@@ -16,8 +16,8 @@ public class DropTask extends TaskNode {
     public int execute(){
         //Drop everything
         log("Dropping logs");
+        //todo drop pattern?
         Inventory.dropAll(item -> item.getName().contains("Logs"));
-
         return Calculations.random(300, 600);
     }
 }
