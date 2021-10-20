@@ -1,6 +1,10 @@
 package FieschWoodcutter;
 
 import FieschWoodcutter.tasks.*;
+import FieschWoodcutter.tasks.combat.KillMobs;
+import FieschWoodcutter.tasks.combat.MoveToAfkZone;
+import FieschWoodcutter.tasks.util.Util;
+import FieschWoodcutter.tasks.util.ZoneRequirements;
 import org.dreambot.api.methods.map.Area;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.SkillTracker;
@@ -16,21 +20,23 @@ public class WoodCutter extends TaskScript {
     //todo set this from GUI
     public static boolean dropLogs = false;
 
-    public static Area chopArea = new Area(3203, 3256, 3180, 3236);
-    public static Area bankArea = new Area(3212, 3229, 3205, 3217, 2);
-    public static Area stairsArea = new Area(3206, 3229, 3205, 3228);
-    public static Area grandExchange = new Area(3168, 3493, 3161, 3486);
-
 
     @Override
     public void onStart(){
         SkillTracker.start(Skill.WOODCUTTING);
-        addNodes(new WoodCutTask(), new DropTask(), new MoveToChopArea(), new MoveToBank(), new Banking());
+        addNodes(new GrandExchangeTask(), new MoveToGE(), new ZoneMgr(), new AntiBan(), new WoodCutTask(), new DropTask(), new MoveToChopArea(), new MoveToBank(), new Banking(), new MoveToAfkZone(), new KillMobs());
 
+        //Get Optimal zone for Wc Lvl on start.
+
+        Util.disableWoodcutter = false;
+        Util.disableWoodTimer = 0;
+        Util.currentAntiban = false;
+        Util.currentZone = Util.getBestZone();
     }
 
     @Override
     public void onPaint(Graphics g) {
+
         String xpGained = String.format(
                 "Woodchopping Experience: %d (%d per hour)", // The paint's text format. '%d' will be replaced with the next two arguments.
                 SkillTracker.getGainedExperience(Skill.WOODCUTTING),
@@ -46,6 +52,15 @@ public class WoodCutter extends TaskScript {
         g.drawString("FieschWoodCutter", 5, 35);
         g.drawString(xpGained, 5, 50);
         g.drawString(lvlGained, 5, 65);
+
+
+        if(Util.currentAntiban){
+            g.drawString("Antiban Currently active", 250, 200);
+        }
+
+        if(Util.disableWoodcutter){
+            g.drawString("Your current combat level is too low to change zone. Leveling up in AFK Zone.", 50, 210);
+        }
 
     }
 }

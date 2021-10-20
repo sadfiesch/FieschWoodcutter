@@ -1,6 +1,7 @@
 package FieschWoodcutter.tasks;
 
 import FieschWoodcutter.WoodCutter;
+import FieschWoodcutter.tasks.util.Util;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.script.TaskNode;
@@ -9,7 +10,7 @@ public class DropTask extends TaskNode {
 
     @Override
     public boolean accept(){
-        return Inventory.isFull() && WoodCutter.dropLogs;
+        return Inventory.isFull() && WoodCutter.dropLogs && !Util.disableWoodcutter;
     }
 
     @Override

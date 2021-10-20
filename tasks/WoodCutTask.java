@@ -1,7 +1,6 @@
 package FieschWoodcutter.tasks;
 
 import FieschWoodcutter.WoodCutter;
-import FieschWoodcutter.tasks.util.LvlHelper;
 import FieschWoodcutter.tasks.util.Util;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
@@ -16,12 +15,9 @@ import org.dreambot.api.wrappers.interactive.GameObject;
 
 public class WoodCutTask extends TaskNode {
 
-    private Area currentChopArea;
-
     @Override
     public boolean accept(){
-        currentChopArea = LvlHelper.areaForLvl(SkillTracker.getStartLevel(Skill.WOODCUTTING));
-        return !Inventory.isFull() && currentChopArea.contains(getLocalPlayer()) && !Util.isChopping() && !Util.isMoving();
+        return !Inventory.isFull() && Util.currentZone.getChopArea().contains(getLocalPlayer()) && !Util.isChopping() && !Util.isMoving() && !Util.isCombat() && Util.hasAxe() && !Util.missingEquip() && !Util.disableWoodcutter;
     }
 
     @Override
@@ -30,16 +26,19 @@ public class WoodCutTask extends TaskNode {
         GameObject tree = getTargetTree();
 
         if (tree == null){
+            log("tree null");
             return Calculations.random(75, 450);
         }
 
-        if(!currentChopArea.contains(tree) || !currentChopArea.contains(getLocalPlayer())){
+        if(!Util.currentZone.getChopArea().contains(tree) || !Util.currentZone.getChopArea().contains(getLocalPlayer())){
+            Walking.walk(Util.currentZone.getChopArea().getRandomTile());
+            sleepUntil(() -> Util.currentZone.getChopArea().contains(getLocalPlayer()), 4000);
             return Calculations.random(75, 450);
         }
 
-        if(tree.distance(getLocalPlayer()) > 5 || !tree.isOnScreen()) {
+        if(tree.distance(getLocalPlayer()) >= 5 || !tree.isOnScreen()) {
             Walking.walk(tree);
-            sleepUntil(() -> tree.distance(getLocalPlayer()) < 5, 3000);
+            sleepUntil(() -> tree.distance(getLocalPlayer()) <= 5, 3000);
         }
 
         //chop this bitch
@@ -51,7 +50,7 @@ public class WoodCutTask extends TaskNode {
     }
 
     private GameObject getTargetTree() {
-        return GameObjects.closest(object -> object.getName().equalsIgnoreCase(LvlHelper.treeForLvl(SkillTracker.getStartLevel(Skill.WOODCUTTING))) && object.hasAction("Chop down"));
+        return GameObjects.closest(object -> object.getName().equalsIgnoreCase(Util.currentZone.getTreeType()) && object.hasAction("Chop down"));
     }
 
     //todo make better // use util functions

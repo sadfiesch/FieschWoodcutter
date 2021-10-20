@@ -1,6 +1,7 @@
 package FieschWoodcutter.tasks;
 
 import FieschWoodcutter.WoodCutter;
+import FieschWoodcutter.tasks.util.Util;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.GameObjects;
@@ -12,15 +13,15 @@ public class MoveToBank extends TaskNode {
 
     @Override
     public boolean accept() {
-        return Inventory.isFull() && !WoodCutter.dropLogs && !WoodCutter.bankArea.contains(getLocalPlayer());
+        return (!Util.hasAxe() || Inventory.isFull()) && !WoodCutter.dropLogs && !Util.currentZone.getBankArea().contains(getLocalPlayer()) && !Util.missingEquip();
     }
 
     @Override
     public int execute() {
         log("Moving to bank area");
-        if(!WoodCutter.bankArea.contains(getLocalPlayer())) {
-            Walking.walk(WoodCutter.bankArea.getRandomTile());
-            sleepUntil(() -> WoodCutter.bankArea.contains(getLocalPlayer()), 2000);
+        if(!Util.currentZone.getBankArea().contains(getLocalPlayer())) {
+            Walking.walk(Util.currentZone.getBankArea().getRandomTile());
+            sleepUntil(() -> Util.currentZone.getBankArea().contains(getLocalPlayer()), 2000);
         }
         return Calculations.random(75, 450);
     }

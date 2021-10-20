@@ -1,6 +1,7 @@
 package FieschWoodcutter.tasks;
 
 import FieschWoodcutter.WoodCutter;
+import FieschWoodcutter.tasks.util.Util;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.GameObjects;
@@ -13,14 +14,22 @@ public class Banking extends TaskNode {
 
     @Override
     public boolean accept() {
-        return Inventory.isFull() && !WoodCutter.dropLogs && WoodCutter.bankArea.contains(getLocalPlayer());
+        return (!Util.hasAxe() || Inventory.isFull()) && !WoodCutter.dropLogs && Util.currentZone.getBankArea().contains(getLocalPlayer()) && !Util.missingEquip();
     }
 
     @Override
     public int execute() {
         log("Banking");
         if(Bank.isOpen()){
-            Bank.depositAllExcept(item -> item.getName().contains("axe"));
+            if(Util.hasAxe()){
+                Bank.depositAllExcept(item -> item.getName().contains("axe"));
+            }else{
+                if(Bank.contains(Util.currentZone.getAxe())){
+                    Bank.withdraw(Util.currentZone.getAxe());
+                }else{
+                    Util.needAxe = true;
+                }
+            }
         }
         if(!Bank.isOpen()){
             GameObject bankBooth = GameObjects.closest(object -> object.getName().equalsIgnoreCase("Bank booth") && object.hasAction("Bank"));

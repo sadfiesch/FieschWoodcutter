@@ -1,7 +1,6 @@
 package FieschWoodcutter.tasks;
 
 import FieschWoodcutter.WoodCutter;
-import FieschWoodcutter.tasks.util.LvlHelper;
 import FieschWoodcutter.tasks.util.Util;
 import org.dreambot.api.Client;
 import org.dreambot.api.methods.Calculations;
@@ -14,22 +13,19 @@ import org.dreambot.api.script.TaskNode;
 
 public class MoveToChopArea extends TaskNode {
 
-    private Area currentChopArea;
-
     @Override
     public boolean accept() {
-        currentChopArea = LvlHelper.areaForLvl(SkillTracker.getStartLevel(Skill.WOODCUTTING));
-        return !Inventory.isFull() && !currentChopArea.contains(getLocalPlayer()) && !Util.isChopping() && !Util.isMoving();
+        return !Inventory.isFull() && !Util.currentZone.getChopArea().contains(getLocalPlayer()) && !Util.isChopping() && Util.hasAxe() && !Util.missingEquip() && !Util.disableWoodcutter;
     }
 
     @Override
     public int execute() {
         log("Moving to chop area");
-        if(!currentChopArea.contains(getLocalPlayer())) {
-            Walking.walk(currentChopArea.getRandomTile());
-            sleepUntil(() -> currentChopArea.contains(getLocalPlayer()), 4000);
+        if(!Util.currentZone.getChopArea().contains(getLocalPlayer())) {
+            Walking.walk(Util.currentZone.getChopArea().getRandomTile());
+            sleepUntil(() -> Util.currentZone.getChopArea().contains(getLocalPlayer()), 4000);
         }
 
-        return Calculations.random(300, 600);
+        return Calculations.random(75, 450);
     }
 }
